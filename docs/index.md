@@ -18,13 +18,12 @@ $reactome = (new ReactomeSourceFactory($httpClient))->create([
 
 ## The scheme
 
-A Reactome event is named by its stable identifier, `R-` then a species' three letters (`HSA`,
-`MMU`; `ALL` for what no species holds) then a number, its version left out (`R-HSA-70171.10` is
-`R-HSA-70171`). The core had no scheme for it on 2026-10-15; this package uses
-`Scheme::REACTOME` (`reactome`, domain biology, label "Reactome", page
-`https://reactome.org/content/detail/R-HSA-70171`, read from that page and from the shape of the
-id, `reactome:` as a prefix), and works with a glitchr/omnilab that has it. Wikidata holds
-Reactome ids in P3937 ("Reactome ID", on 43,834 items on 2026-10-15).
+A Reactome event is named by its stable identifier in the core's `reactome` scheme
+(`Scheme::REACTOME`): `R-` then a species' three letters (`HSA`, `MMU`; `ALL` for what no species
+holds) then a number, its version left out (`R-HSA-70171.10` is `R-HSA-70171`), read from its page
+(`https://reactome.org/content/detail/R-HSA-70171`), from `reactome:` and from its shape alone.
+Wikidata holds Reactome ids in P3937 ("Reactome ID", on 43,834 items on 2026-10-15), which
+omnilab/wikidata reads into that scheme.
 
 ## Which API: the Content Service
 
@@ -100,6 +99,26 @@ reactome:R-HSA-9927020 Heme assimilation
 Not a `Collector` path: a protein is not its pathways (they are other things, `related` at most),
 so no identifier of a protein names a pathway.
 
+## The Collector: glycolysis from Wikidata
+
+Wikidata's item for a pathway carries its Reactome ID (P3937). Against the real services on
+2026-10-15:
+
+```php
+$collector->collect('wikidata', 'Q45317172', 1, ['reactome']);
+```
+
+4 calls in 2.0 s - Wikidata's two (the item, the labels of its classes), Reactome's two (the event,
+its participants) - and `sources` = wikidata, reactome, identifiers `wikidata:Q45317172`,
+`reactome:R-HSA-70171`:
+
+```
+species                Homo sapiens [reactome]
+compartment            cytosol (GO:0005829) [reactome]
+go_biological_process  canonical glycolysis (GO:0061621) [reactome]
+review_status          five stars [reactome]
+```
+
 ## What the Content Service does not give here
 
 The physical entities (complexes, sets, proteins as Reactome models them), the diagrams' layouts,
@@ -114,9 +133,7 @@ molecules, 14 orthologous events), the reaction R-HSA-70420 by its id, its versi
 and `reactome:`; ATP in the cytosol (a physical entity: null); an unknown id (404); the search for
 "glycolysis" in two pages of three (76 matches), for a text nothing matches (404); hemoglobin
 beta's ten pathways and 28 reactions; glucose's 27 pathways (ChEBI 4167; ATP, ChEBI 30616, takes
-part in 827). The fixtures in `Tests/Fixtures/` are its answers. Each call took 0.2 to 1.8 s.
+part in 827); the Collector's walk from Wikidata above. The fixtures in `Tests/Fixtures/` are its answers. Each call took 0.2 to 1.8 s.
 
 Not verified: a rate limit (none published, none met); the service's behaviour with `species:
-'all'` on a search (asked with Homo sapiens only); the tests and the package against a core that
-has the `reactome` scheme published (verified against a scratch copy of the core's `Scheme` and
-`Identifier` with it).
+'all'` on a search (asked with Homo sapiens only).

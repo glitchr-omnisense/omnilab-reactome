@@ -32,9 +32,10 @@ omnilab:
                 participants: true             # entity() asks for the participants (a second call)
 ```
 
-**It needs the core's `reactome` scheme** (`Scheme::REACTOME`, `R-HSA-70171`, its page
-`reactome.org/content/detail/`), which glitchr/omnilab does not have yet: see
-[docs/](docs/index.md#the-scheme).
+A pathway is named in the core's `reactome` scheme. With Wikidata configured too, the
+`Collector` follows a pathway from Wikidata's Reactome ID (P3937) into Reactome
+(`$collector->collect('wikidata', 'Q45317172')`, glycolysis); a protein's pathways come from
+`pathways()`.
 
 ## Terms of use
 
