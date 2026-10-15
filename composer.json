@@ -1,0 +1,46 @@
+{
+    "name": "omnilab/reactome",
+    "type": "library",
+    "description": "Omnilab Reactome: a pathway or a reaction by its stable identifier (R-HSA-70171) - its names, species, summary, compartments, GO biological process, Rhea reaction, inputs, outputs and catalysts, review status, release dates, DOI and diagram - its participants (UniProt proteins, ChEBI small molecules), organism, sub-events and orthologous events as related things, a search by text, and the pathways of a protein or a molecule (UniProt, ChEBI), through Reactome's Content Service, no key needed.",
+    "keywords": [
+        "science",
+        "biology",
+        "reactome",
+        "pathways",
+        "reactions",
+        "uniprot",
+        "chebi",
+        "omnilab"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marco Meyer",
+            "email": "marco.meyer@glitchr.io"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "glitchr/omnilab": "^1.0@dev",
+        "symfony/http-client": "^6.4|^7.0|^8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Omnilab\\Reactome\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Omnilab\\Reactome\\Tests\\": "Tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
