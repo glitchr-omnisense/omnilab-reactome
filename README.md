@@ -1,6 +1,6 @@
 # omnilab/reactome
 
-Reactome for [glitchr/omnilab](https://github.com/glitchr-studio/omnilab): a pathway or a reaction
+Reactome for [omniscient/omnilab](https://github.com/glitchr-studio/omnilab): a pathway or a reaction
 by its stable identifier - `R-HSA-70171`, glycolysis; `R-HSA-70420`, a reaction of it - with its
 names, species, summary, compartments, GO biological process, Rhea reaction, inputs, outputs and
 catalyst, review status, release dates, DOI and diagram; its participants as related things (the
