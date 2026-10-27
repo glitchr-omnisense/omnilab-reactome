@@ -1,5 +1,11 @@
 # omnilab/reactome
 
+Reactome's Content Service (`https://reactome.org/ContentService/`) for
+[omnisense/omnilab](https://github.com/glitchr-omnisense/omnilab): pathways and reactions by stable
+id (`R-HSA-70171`) - species, compartments, GO process, inputs and outputs, Rhea - with their UniProt
+proteins, ChEBI molecules, organism, sub-events and orthologous events as related things, as
+entities; a search; outside the contract, the pathways of a protein or a molecule. No key.
+
 ## Installation
 
 ```sh
@@ -15,6 +21,49 @@ $reactome = (new ReactomeSourceFactory($httpClient))->create([
     'participants' => true,            // optional: entity() asks for the participants too
 ]);
 ```
+
+## Credentials
+
+None: Reactome's Content Service takes no key and no account.
+
+## Options
+
+The factory's options, with the defaults it applies (`ReactomeSourceFactory`):
+
+| Option | Type | Default | Required | Effect |
+|---|---|---|---|---|
+| `species` | `?string` | `Homo sapiens` | no | the species a search and `pathways()` keep (`Homo sapiens`, or a taxon id for `pathways()`); null, empty or `all`: every species |
+| `participants` | `bool` | `true` | no | `entity()` asks for the participants too (a second call; thousands for a top-level pathway): the `protein` and `molecule` relations |
+| `mailto` | `?string` | null | no | a contact address, sent in the User-Agent |
+| `user_agent` | `?string` | null | no | the whole User-Agent, in place of the one made from `mailto` |
+| `throttle` | `float` | `0` | no | seconds left between two calls: Reactome publishes no rate |
+| `base_uri` | `string` | `https://reactome.org/ContentService/` | no | the API the source calls |
+
+## Capabilities
+
+`capabilities()` answers `entity`, `search`; an operation it does not answer throws `NotSupportedException` before any call.
+
+| Capability | Supported | |
+|---|---|---|
+| `entity` | yes | an event by its stable id (`R-HSA-70171`, versioned or not, `reactome:`, its page): two calls (one with `participants` false); a physical entity is null; another base refused before any call |
+| `search` | yes | the Content Service's search over pathways and reactions, in the configured species, 100 a page at most, with a `total`; a 404 is no match |
+| `series` | no |  |
+| `products` | no |  |
+| `occurrences` | no |  |
+| `datasets` | no |  |
+| `jobs` | no |  |
+| `open` | no |  |
+| `structure` | no | the image is the event's diagram, or a reaction's picture: not a structure |
+| `cross_references` | no | none: no other base names a pathway; its participants, sub-events, orthologs and organism are `related` |
+| `forecast` | no |  |
+| `historical` | no |  |
+| `area` | no |  |
+| `station` | no |  |
+| `cloud_cover` | no |  |
+
+Outside the contract, on `Omnilab\Reactome\ReactomeSource`: `pathways(Identifier|string
+$participant, bool $reactions = false): list<Entity>` - the lowest-level pathways (or the
+reactions) a UniProt protein or a ChEBI molecule takes part in ([below](#from-uniprot-to-reactome)).
 
 ## The scheme
 
@@ -126,6 +175,59 @@ the analysis service (over-representation of a list of genes), the interactors, 
 references themselves (counted only), the disease variants, the hierarchy above an event (its
 parent pathways: `data/pathways/low/...`, not asked), and the orthologous events' content.
 
+## Example
+
+```php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+use Omnilab\Reactome\ReactomeSourceFactory;
+use Omnilab\Source\Query;
+use Symfony\Component\HttpClient\HttpClient;
+
+$reactome = (new ReactomeSourceFactory(HttpClient::create()))->create(['mailto' => 'you@example.org']);
+
+$glycolysis = $reactome->entity('R-HSA-70171');
+printf("%s %s (%s): %s, %d events, %d proteins, %d molecules, %d orthologous events\n", $glycolysis->id->display(), $glycolysis->label, $glycolysis->kind, $glycolysis->value('review_status'), count($glycolysis->related('event')), count($glycolysis->related('protein')), count($glycolysis->related('molecule')), count($glycolysis->related('ortholog')));
+
+$page = $reactome->search(new Query('glycolysis', limit: 3));
+printf("%d matches for \"glycolysis\"; the first %d:\n", $page->total, count($page));
+foreach ($page as $event) {
+    echo '  ', $event->id->display(), '  ', $event->label, '  (', $event->kind, ")\n";
+}
+printf("hemoglobin beta takes part in %d pathways\n", count($reactome->pathways('uniprot:P68871')));
+```
+
+```
+R-HSA-70171 Glycolysis (pathway): five stars, 16 events, 79 proteins, 32 molecules, 14 orthologous events
+76 matches for "glycolysis"; the first 3:
+  R-HSA-70171  Glycolysis  (pathway)
+  R-HSA-9634600  Regulation of glycolysis by fructose 2,6-bisphosphate metabolism  (pathway)
+  R-HSA-70326  Glucose metabolism  (pathway)
+hemoglobin beta takes part in 10 pathways
+```
+
+(as answered on 2026-10-27: four calls)
+
+```yaml
+# config/packages/omnilab.yaml
+omnilab:
+    sources:
+        reactome: { factory: reactome, options: { mailto: '%env(OMNILAB_MAILTO)%', species: 'Homo sapiens', participants: true } }
+```
+
+`pathways()` is a method of `ReactomeSource`, not of the interface the bundle injects: check the
+instance before calling it.
+
+## Errors
+
+Every call goes through `HttpSource`: a 404 or a 410 (and a 204) is null - an empty page for a list -; a 429 is a `RateLimitedException` (`retryAfter` from `Retry-After`); a 5xx, a time-out or a host that does not answer an `UnavailableException`; any other 4xx a `ProviderException` with its `status` and what the service said; an answer that is not JSON a `ProviderException`, a web page answered for JSON an `UnavailableException`.
+
+Reactome's own: a search that matches nothing is its 404, an empty page; an unknown id its 404,
+null. Before any call: an identifier of another base given to `entity()`, or anything but a
+UniProt accession or a ChEBI id given to `pathways()` (`NotSupportedException`).
+
 ## Verified, and not
 
 Against the real service on 2026-10-15 (release 97): glycolysis (16 events, 79 proteins, 32
@@ -135,5 +237,18 @@ and `reactome:`; ATP in the cytosol (a physical entity: null); an unknown id (40
 beta's ten pathways and 28 reactions; glucose's 27 pathways (ChEBI 4167; ATP, ChEBI 30616, takes
 part in 827); the Collector's walk from Wikidata above. The fixtures in `Tests/Fixtures/` are its answers. Each call took 0.2 to 1.8 s.
 
+Again on 2026-10-27: glycolysis (16 events, 79 proteins, 32 molecules), the search for
+"glycolysis" (76 matches), hemoglobin beta's ten pathways (the example above).
+
 Not verified: a rate limit (none published, none met); the service's behaviour with `species:
 'all'` on a search (asked with Homo sapiens only).
+
+## Responsibility
+
+This package is an independent, unofficial client: it is not affiliated with, endorsed by or
+sponsored by Reactome. Its data are under [CC0](https://creativecommons.org/publicdomain/zero/1.0/),
+its other content under CC BY 4.0, and attribution is encouraged (The Reactome Knowledgebase 2026,
+Nucleic Acids Res. 2025, 10.1093/nar/gkaf1223), as the README's
+[Terms of use](https://github.com/glitchr-omnisense/omnilab-reactome#terms-of-use) says. Whoever
+runs the package is responsible for any use made of what it returns: see the README's
+[Responsibility](https://github.com/glitchr-omnisense/omnilab-reactome#responsibility) section.
