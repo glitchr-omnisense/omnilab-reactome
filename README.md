@@ -44,6 +44,17 @@ content (text, illustrations) under CC BY 4.0 ([reactome.org/license](https://re
 attribution is encouraged: cite the current paper (The Reactome Knowledgebase 2026, Nucleic Acids
 Res. 2025, [10.1093/nar/gkaf1223](https://doi.org/10.1093/nar/gkaf1223)). No rate is published.
 
+## Usage policy
+
+Declared as data in [`policy.json`](policy.json) (read at https://reactome.org/license on 2026-11-10), and honoured on every request by the
+core: a limit reached waits when its window ends within `max_wait` seconds, else the request is not
+sent ([Usage policies](https://github.com/glitchr-omnisense/omnilab/blob/1.x/docs/policies.md)).
+
+- Limits: not published (unknown).
+- Licence: CC0-1.0; commercial use: allowed.
+- Credit: not required: The Reactome Knowledgebase 2026, Nucleic Acids Res. 2025, doi:10.1093/nar/gkaf1223 (https://reactome.org/license).
+- Needs: nothing.
+
 ## Responsibility
 
 This package is an independent, unofficial client: it is not affiliated with, endorsed by or

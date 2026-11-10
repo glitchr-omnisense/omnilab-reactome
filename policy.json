@@ -1,0 +1,40 @@
+{
+    "$schema": "https://github.com/glitchr-omnisense/contracts/blob/1.x/resources/usage-policy.schema.json",
+    "provider": "reactome",
+    "rateLimits": null,
+    "concurrency": null,
+    "rights": {
+        "commercial": "allowed",
+        "openSourceRequired": null,
+        "caching": {
+            "permission": "allowed",
+            "maxTtl": null
+        },
+        "storage": "allowed",
+        "redistribution": "allowed",
+        "attribution": {
+            "required": false,
+            "text": "The Reactome Knowledgebase 2026, Nucleic Acids Res. 2025, doi:10.1093/nar/gkaf1223",
+            "url": "https://reactome.org/license",
+            "where": [
+                "source"
+            ]
+        },
+        "licence": "CC0-1.0"
+    },
+    "requirements": {
+        "key": false,
+        "userAgent": {
+            "required": false,
+            "pattern": null
+        }
+    },
+    "provenance": {
+        "terms": "https://reactome.org/license",
+        "policy": null,
+        "verifiedAt": "2026-11-10",
+        "declaredBy": "maintainer",
+        "contact": null,
+        "notes": "Read 2026-11-10: the licence page (database data and derived files CC0, commercial use allowed, attribution encouraged not required; illustrations, icons and branding CC BY 4.0, not used by the source). No API terms or request rate published on it; no RateLimit header on a live call."
+    }
+}
