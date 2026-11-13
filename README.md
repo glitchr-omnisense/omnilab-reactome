@@ -37,6 +37,34 @@ A pathway is named in the core's `reactome` scheme. With Wikidata configured too
 (`$collector->collect('wikidata', 'Q45317172')`, glycolysis); a protein's pathways come from
 `pathways()`.
 
+## Install and a first call
+
+```sh
+composer require omnilab/reactome
+```
+
+A real call, with no account and no key: the glycolysis pathway in Reactome. `mailto` is your
+address, sent in the User-Agent so that the service can reach you before it blocks a caller; the
+source keeps to the limits its [`policy.json`](policy.json) declares.
+
+```php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+use Omnilab\Reactome\ReactomeSourceFactory;
+
+$reactome = (new ReactomeSourceFactory())->create(['mailto' => 'you@example.org']);   // your address, in the User-Agent
+$pathway = $reactome->entity('R-HSA-70171');
+echo $pathway->label, ', ', $pathway->value('compartment'), "\n";
+```
+
+Its output on 2026-11-13:
+
+```
+Glycolysis, cytosol (GO:0005829)
+```
+
 ## Terms of use
 
 Reactome's data are under [CC0](https://creativecommons.org/publicdomain/zero/1.0/), its other
